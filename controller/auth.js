@@ -31,7 +31,7 @@ const loginController = async (req, res) => {
 
     res.status(200).json({
       msg: "Login berhasil",
-      user: { username: loggedUser.username },
+      username: loggedUser.username,
       token: token,
       role: loggedUser.role, // opsional
     });
