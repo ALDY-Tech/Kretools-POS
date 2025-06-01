@@ -1,6 +1,7 @@
 import express from "express";
 import authRoutes from "./routes/auth.js";
 import itemRoutes from "./routes/ItemMaster.routes.js";
+import additionalRoutes from "./routes/additional.routes.js";
 import cors from "cors";
 
 const app = express();
@@ -18,7 +19,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/", authRoutes);
-app.use("/api", itemRoutes);
+app.use("/api", itemRoutes, additionalRoutes);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
