@@ -1,6 +1,6 @@
 import express from "express";
 import authRoutes from "./routes/auth.js";
-import { verifyAdmin } from "./middleware/auth.js";
+import itemRoutes from "./routes/ItemMaster.routes.js";
 import cors from "cors";
 
 const app = express();
@@ -12,16 +12,13 @@ app.use(
 );
 
 app.use(express.json());
-app.use("/", authRoutes);
-
-app.get("/admin-only", verifyAdmin, (req, res) => {
-  res.json({ message: `Halo admin, role Anda: ${req.user.role}` });
-});
 
 app.get("/", (req, res) => {
   res.send("Welcome to the API!");
 });
 
+app.use("/", authRoutes);
+app.use("/api", itemRoutes);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");

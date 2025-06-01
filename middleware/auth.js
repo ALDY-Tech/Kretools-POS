@@ -1,26 +1,35 @@
 import { jwtVerify } from "jose";
+import dotenv from "dotenv";
+dotenv.config();
 
-const secret = new TextEncoder().encode("RAHASIA");
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export const verifyAdmin = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Token tidak tersedia" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
   try {
-    const authHeader = req.headers.authorization;
+    const { payload } = await jwtVerify(token, secret, {
+      algorithms: ["HS256"],
+    });
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "Token tidak ditemukan" });
+    // console.log("Decoded payload:", payload); // 👈 DEBUG output payload
+
+    if (!payload || payload.role !== "admin") {
+      return res.status(403).json({ message: "Akses hanya untuk admin" });
     }
 
-    const token = authHeader.split(" ")[1];
-
-    const { payload } = await jwtVerify(token, secret);
-
-    if (payload.role !== "admin") {
-      return res.status(403).json({ message: "Akses ditolak, bukan admin" });
-    }
-
-    req.user = payload; // bisa digunakan di route berikutnya
+    req.user = payload;
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Token tidak valid" });
+    // console.error("JWT Verify Error:", err); // 👈 DEBUG error
+    return res
+      .status(401)
+      .json({ message: "Token tidak valid", error: err.message });
   }
 };

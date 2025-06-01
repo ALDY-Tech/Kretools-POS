@@ -1,11 +1,10 @@
-//  untuk hash password
-// jwt
-
 import { SignJWT } from "jose";
-const secret = new TextEncoder().encode("RAHASIA");
+import dotenv from "dotenv";
+dotenv.config();
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
-const generateToken = async (role) => {
-  const token = await new SignJWT({ role })
+const generateToken = async (payload) => {
+  const token = await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("1h")

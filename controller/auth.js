@@ -27,7 +27,7 @@ const loginController = async (req, res) => {
   try {
     const loggedUser = await login({ username, password });
 
-    const token = await generateToken(loggedUser.role); // tambahkan role
+    const token = await generateToken({id: loggedUser.id, role: loggedUser.role}); // tambahkan role
 
     res.status(200).json({
       msg: "Login berhasil",
