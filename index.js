@@ -20,12 +20,71 @@ app.get("/", (req, res) => {
 });
 
 app.get("/validate", verifyToken, (req, res) => {
-  const user = req.user;
+  return res.status(200).json({ status: "valid" });
+});
 
-  if (user.role === "admin") {
-    return res.status(200).json({ status: "valid", role: user.role });
-  } else {
-    return res.status(403).json({ status: "not valid", role: user.role });
+app.post("/api/transactions", async (req, res) => {
+  const { TransactionDate, CustomerName, items } = req.body;
+
+  try {
+    let totalAmount = 0;
+
+    // Hitung total dulu
+    for (const item of items) {
+      const itemTotal = item.Qty * item.Harga;
+      const additionalTotal =
+        item.additionals.reduce((sum, a) => sum + a.AdditionalPrice, 0) *
+        item.Qty;
+      totalAmount += itemTotal + additionalTotal;
+    }
+
+    // Simpan ke Transaction
+    const transaction = await prisma.transaction.create({
+      data: {
+        transactionDate: new Date(TransactionDate),
+        customerName: CustomerName,
+        totalAmount: totalAmount,
+      },
+    });
+
+    // Simpan detail + tambahan
+    for (const item of items) {
+      const detail = await prisma.transaction_details.create({
+        data: {
+          transactionId: transaction.Transaction_id,
+          itemMasterId: item.ItemMasterID,
+          itemCode: item.ItemCode,
+          itemName: item.ItemName,
+          customerName: CustomerName,
+          qty: item.Qty,
+          harga: item.Harga,
+          totalHarga:
+            item.Qty * item.Harga +
+            item.additionals.reduce((sum, a) => sum + a.AdditionalPrice, 0) *
+              item.Qty,
+          date: new Date(TransactionDate),
+        },
+      });
+
+      for (const add of item.additionals) {
+        await prisma.transaction_additional.create({
+          data: {
+            transactionDetailId: detail.id,
+            additionalId: add.AdditionalID,
+            additionalName: add.AdditionalName,
+            additionalPrice: add.AdditionalPrice,
+          },
+        });
+      }
+    }
+
+    res.status(201).json({
+      message: "Transaction saved",
+      transactionId: transaction.Transaction_id,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to save transaction", error });
   }
 });
 
