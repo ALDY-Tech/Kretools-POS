@@ -17,60 +17,52 @@ model user {
 }
 
 model ItemMaster {
-  id        Int      @id @default(autoincrement())
-  itemCode  String @unique
-  itemName  String
-  category  String
-  price     Float
-  uom       String
-  status    Boolean
-
+  id                 Int                   @id @default(autoincrement())
+  itemCode           String                @unique
+  itemName           String
+  category           String
+  price              Float
+  uom                String
+  status             Boolean
   transactionDetails Transaction_details[]
 }
 
 model Additional {
-  id           Int     @id @default(autoincrement())
-  additionalItem String
-  price         Float
-  is_required   Boolean
-  itemCategory  String
-
+  id                     Int                      @id @default(autoincrement())
+  additionalItem         String
+  price                  Float
+  is_required            Boolean
+  itemCategory           String
   transactionAdditionals Transaction_additional[]
 }
 
 model Transaction {
-  id            Int     @id @default(autoincrement()) @map("Transaction_id")
-  transactionDate DateTime
-  customerName   String
-  totalAmount    Float
+  id                 String               @id @unique @map("Transaction_id")
+  totalAmount        Float
+  transactionDetails Transaction_details?
 
-  transactionDetails Transaction_details[]
+  @@map("Transaction")
 }
 
 model Transaction_details {
-  id              Int      @id @default(autoincrement())
-  transactionId   Int
-  itemMasterId    Int
-  itemCode        String
-  itemName        String
-  customerName    String
-  qty             Int
-  harga           Float
-  totalHarga      Float
-  date            DateTime
-
-  transaction     Transaction @relation(fields: [transactionId], references: [id])
-  itemMaster      ItemMaster  @relation(fields: [itemMasterId], references: [id])
+  id                     Int                      @id @default(autoincrement())
+  transactionId          String                   @unique
+  itemMasterId           Int
+  customerName           String
+  qty                    Int
+  totalHarga             Float
+  date                   DateTime                 @db.Date @default(now())
   transactionAdditionals Transaction_additional[]
+  itemMaster             ItemMaster               @relation(fields: [itemMasterId], references: [id])
+  transaction            Transaction              @relation(fields: [transactionId], references: [id])
+
+  @@map("Transaction_details")
 }
 
 model Transaction_additional {
-  id                    Int     @id @default(autoincrement())
-  transactionDetailId   Int
-  additionalId          Int
-  additionalName        String
-  additionalPrice       Float
-
-  transactionDetail Transaction_details @relation(fields: [transactionDetailId], references: [id])
-  additional        Additional          @relation(fields: [additionalId], references: [id])
+  id                  Int                 @id @default(autoincrement())
+  transactionDetailId Int
+  additionalId        Int
+  additional          Additional          @relation(fields: [additionalId], references: [id])
+  transactionDetail   Transaction_details @relation(fields: [transactionDetailId], references: [id])
 }

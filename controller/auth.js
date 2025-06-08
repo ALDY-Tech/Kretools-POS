@@ -1,4 +1,4 @@
-import { register, login } from "../usecase/auth.js";
+import { register, login } from "../service/auth.js";
 import { generateToken } from "../utils/jwt.js";
 
 const registerController = async (req, res) => {

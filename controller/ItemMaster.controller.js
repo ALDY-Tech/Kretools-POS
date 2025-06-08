@@ -3,7 +3,7 @@ import {
   getAllItemsService,
   updateItemService, 
   deleteItemService,
-} from "../usecase/ItemMaster.service.js";
+} from "../service/ItemMaster.service.js";
 
 const addItemController = async (req, res) => {
   try {

@@ -3,7 +3,7 @@ import {
   getAllAdditionalsService,
   updateAdditionalService,
   deleteAdditionalService,
-} from "../usecase/additional.service.js";
+} from "../service/additional.service.js";
 
 const addAdditionalController = async (req, res) => {
   try {
