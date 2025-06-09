@@ -28,6 +28,13 @@ const getAllItems = async () => {
     return items;
 };
 
+const getItemById = async (id) => {
+    const item = await db.itemMaster.findUnique({
+        where: { id: id },
+    });
+    return item;
+};
+
 const updateItem = async (id, item) => {
     const updatedItem = await db.itemMaster.update({
         where: { id: id },
@@ -50,4 +57,4 @@ const deleteItem = async (id) => {
     return deletedItem;
 };
 
-export { insertItem, countItemsByCategory, getAllItems, updateItem, deleteItem };
+export { insertItem, countItemsByCategory, getAllItems, getItemById, updateItem, deleteItem };

@@ -3,6 +3,7 @@ import {
   insertItem,
   countItemsByCategory,
   getAllItems,
+  getItemById,
   updateItem,
   deleteItem,
 } from "../repository/itemMaster.repository.js";
@@ -32,6 +33,11 @@ const getAllItemsService = async () => {
   return items;
 };
 
+const getItemByIdService = async (id) => {
+  const item = await getItemById(id);
+  return item;
+};
+
 const updateItemService = async (id, item) => {
   const count = await countItemsByCategory(item.category);
   const itemCode = generateItemCode(item.category, count);
@@ -56,4 +62,4 @@ const deleteItemService = async (id) => {
   return deletedItem;
 };
 
-export { createItem, getAllItemsService, updateItemService, deleteItemService };
+export { createItem, getAllItemsService, getItemByIdService, updateItemService, deleteItemService };

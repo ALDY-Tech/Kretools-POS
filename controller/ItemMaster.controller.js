@@ -1,6 +1,7 @@
 import {
   createItem,
   getAllItemsService,
+  getItemByIdService,
   updateItemService, 
   deleteItemService,
 } from "../service/ItemMaster.service.js";
@@ -27,6 +28,17 @@ const getAllItemsController = async (req, res) => {
   }
 };
 
+const getItemByIdController = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const item = await getItemByIdService(parseInt(id));
+    res.status(200).json(item);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Gagal mendapatkan item", error: err.message });
+  }
+}
+
 const updateItemController = async (req, res) => {
   const { id } = req.params;
   try {
@@ -52,4 +64,4 @@ const deleteItemController = async (req, res) => {
   }
 };
 
-export { addItemController, getAllItemsController, updateItemController, deleteItemController };
+export { addItemController, getAllItemsController, getItemByIdController, updateItemController, deleteItemController };
