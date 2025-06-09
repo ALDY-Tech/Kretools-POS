@@ -18,6 +18,13 @@ const getAllAdditionals = async () => {
   return additionals;
 };
 
+const getAdditionalById = async (id) => {
+  const additional = await db.additional.findUnique({
+    where: { id: id },
+  });
+  return additional;
+};
+
 const updateAdditional = async (id, additional) => {
   const updatedAdditional = await db.additional.update({
     where: { id: id },
@@ -41,6 +48,7 @@ const deleteAdditional = async (id) => {
 export {
   insertAdditional,
   getAllAdditionals,
+  getAdditionalById,
   updateAdditional,
   deleteAdditional
 };

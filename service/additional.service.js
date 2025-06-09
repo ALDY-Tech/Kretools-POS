@@ -1,6 +1,7 @@
 import {
   insertAdditional,
   getAllAdditionals,
+  getAdditionalById,
   updateAdditional,
   deleteAdditional,
 } from "../repository/additional.repository.js";
@@ -19,6 +20,11 @@ const getAllAdditionalsService = async () => {
   return additionals;
 };
 
+const getAdditionalByIdService = async (id) => {
+  const additional = await getAdditionalById(id);
+  return additional;
+};
+
 const updateAdditionalService = async (id, additional) => {
   const updatedAdditional = await updateAdditional(id, additional);
   return updatedAdditional;
@@ -29,4 +35,4 @@ const deleteAdditionalService = async (id) => {
   return deletedAdditional;
 };
 
-export { createAdditional, getAllAdditionalsService, updateAdditionalService, deleteAdditionalService };
+export { createAdditional, getAllAdditionalsService, getAdditionalByIdService, updateAdditionalService, deleteAdditionalService };

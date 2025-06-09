@@ -1,6 +1,7 @@
 import {
   createAdditional,
   getAllAdditionalsService,
+  getAdditionalByIdService,
   updateAdditionalService,
   deleteAdditionalService,
 } from "../service/additional.service.js";
@@ -24,6 +25,17 @@ const getAllAdditionalsController = async (req, res) => {
     res.status(500).json({ msg: "Gagal mendapatkan daftar additional", error: err.message });
   }
 };
+
+const getAdditionalByIdController = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const additional = await getAdditionalByIdService(parseInt(id));
+    res.status(200).json(additional);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Gagal mendapatkan additional", error: err.message });
+  }
+}
 
 const updateAdditionalController = async (req, res) => {
   const { id } = req.params;
@@ -53,6 +65,7 @@ const deleteAdditionalController = async (req, res) => {
 export {
   addAdditionalController,
   getAllAdditionalsController,
+  getAdditionalByIdController,
   updateAdditionalController,
   deleteAdditionalController,
 };

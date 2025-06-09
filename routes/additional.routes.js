@@ -1,6 +1,7 @@
 import {
   addAdditionalController,
   getAllAdditionalsController,
+  getAdditionalByIdController,
   updateAdditionalController,
   deleteAdditionalController,
 } from "../controller/additional.controller.js";
@@ -11,6 +12,7 @@ const router = express.Router();
 
 router.post("/additional", verifyAdmin, addAdditionalController);
 router.get("/additional", getAllAdditionalsController);
+router.get("/additional/:id", getAdditionalByIdController);
 router.put("/additional/:id", verifyAdmin, updateAdditionalController);
 router.delete("/additional/:id", verifyAdmin, deleteAdditionalController);
 
