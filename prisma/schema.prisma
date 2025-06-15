@@ -39,14 +39,13 @@ model Additional {
 model Transaction {
   id                 String               @id @unique @map("Transaction_id")
   totalAmount        Float
-  transactionDetails Transaction_details?
-
+  transactionDetails Transaction_details[] 
   @@map("Transaction")
 }
 
 model Transaction_details {
   id                     Int                      @id @default(autoincrement())
-  transactionId          String                   @unique
+  transactionId          String                  
   itemMasterId           Int
   customerName           String
   qty                    Int
@@ -55,7 +54,6 @@ model Transaction_details {
   transactionAdditionals Transaction_additional[]
   itemMaster             ItemMaster               @relation(fields: [itemMasterId], references: [id])
   transaction            Transaction              @relation(fields: [transactionId], references: [id])
-
   @@map("Transaction_details")
 }
 

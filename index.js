@@ -2,9 +2,9 @@ import express from "express";
 import authRoutes from "./routes/auth.js";
 import itemRoutes from "./routes/ItemMaster.routes.js";
 import additionalRoutes from "./routes/additional.routes.js";
+import transactionRoutes from "./routes/Transaction.routes.js";
 import { verifyToken } from "./middleware/auth.js";
 import cors from "cors";
-import { createNewTransaction } from "./service/transaction.service.js";
 
 const app = express();
 app.use(
@@ -26,8 +26,7 @@ app.get("/validate", verifyToken, (req, res) => {
 
 
 app.use("/", authRoutes);
-app.use("/api", itemRoutes, additionalRoutes,);
-app.post("/api/transaction", createNewTransaction);
+app.use("/api", itemRoutes, additionalRoutes, transactionRoutes);
 
 const PORT = 3000;
 app.listen(PORT, () => {
