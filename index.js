@@ -3,6 +3,7 @@ import authRoutes from "./routes/auth.js";
 import itemRoutes from "./routes/ItemMaster.routes.js";
 import additionalRoutes from "./routes/additional.routes.js";
 import transactionRoutes from "./routes/Transaction.routes.js";
+import midtransRoutes from "./routes/midtrans.routes.js";
 import { verifyToken } from "./middleware/auth.js";
 import cors from "cors";
 
@@ -26,7 +27,7 @@ app.get("/validate", verifyToken, (req, res) => {
 
 
 app.use("/", authRoutes);
-app.use("/api", itemRoutes, additionalRoutes, transactionRoutes);
+app.use("/api", itemRoutes, additionalRoutes, transactionRoutes, midtransRoutes);
 
 const PORT = 3000;
 app.listen(PORT, () => {

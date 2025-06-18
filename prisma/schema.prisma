@@ -38,7 +38,9 @@ model Additional {
 
 model Transaction {
   id                 String               @id @unique @map("Transaction_id")
+  midtransOrderId String @unique
   totalAmount        Float
+  isPaid            Boolean              @default(false)
   transactionDetails Transaction_details[] 
   @@map("Transaction")
 }

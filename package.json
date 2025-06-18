@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^6.9.0",
+    "@prisma/client": "^6.10.0",
     "@supabase/supabase-js": "^2.49.8",
     "argon2": "^0.43.0",
     "cors": "^2.8.5",

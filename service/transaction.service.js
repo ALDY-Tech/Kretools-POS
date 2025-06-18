@@ -1,128 +1,87 @@
-import midtransClient from "midtrans-client";
+import {snap} from "../lib/midtrans.js";
 import prisma from "../config/config.js";
-import generateTransactionId  from "../utils/generateTransaction.js";
+import {generateTransactionId, generateOrderId}  from "../utils/generateTransaction.js";
 
 // Konfigurasi Midtrans Snap
-const snap = new midtransClient.Snap({
-  isProduction: false,
-  serverKey: process.env.MIDTRANS_SERVER_KEY,
-  clientKey: process.env.MIDTRANS_CLIENT_KEY,
-});
 
 export const createNewTransaction = async (body) => {
-  const { CustomerName, items } = body;
-  const transactionDate = new Date();
+  const date = new Date();
+  const transactionId = await generateTransactionId(prisma, date);
+  const orderId = generateOrderId(transactionId);
 
-  const customTransactionId = await generateTransactionId(
-    prisma,
-    transactionDate
-  );
   let totalAmount = 0;
 
-  // Hitung totalAmount
-  for (const item of items) {
-    const itemData = await prisma.itemMaster.findUnique({
-      where: { id: item.ItemMasterID },
-    });
+  const transactionDetailsData = await Promise.all(
+    body.items.map(async (item) => {
+      const itemMaster = await prisma.itemMaster.findUnique({
+        where: { id: item.ItemMasterID },
+      });
+      if (!itemMaster)
+        throw new Error(`ItemMaster ${item.ItemMasterID} not found`);
+      let harga = item.Harga || itemMaster.price;
+      let additionalsTotal = 0;
 
-    const harga = itemData.price;
-    const tambahanHarga = (item.additionals || []).reduce(
-      async (sumPromise, add) => {
-        const sum = await sumPromise;
-        const additional = await prisma.additional.findUnique({
-          where: { id: add.AdditionalID },
-        });
-        return sum + (additional?.price || 0);
-      },
-      Promise.resolve(0)
-    );
+      const additionalsData = await Promise.all(
+        item.additionals.map(async (add) => {
+          const additional = await prisma.additional.findUnique({
+            where: { id: add.AdditionalID },
+          });
+          if (!additional)
+            throw new Error(`Additional ${add.AdditionalID} not found`);
+          additionalsTotal += additional.price;
+          return { additionalId: add.AdditionalID };
+        })
+      );
 
-    const totalItem = harga * item.Qty + (await tambahanHarga) * item.Qty;
-    totalAmount += totalItem;
-  }
+      const totalHarga = (harga + additionalsTotal) * item.Qty;
+      totalAmount += totalHarga;
 
-  // Buat transaksi utama
+      return {
+        itemMasterId: item.ItemMasterID,
+        customerName: body.CustomerName,
+        qty: item.Qty,
+        totalHarga,
+        transactionAdditionals: {
+          create: additionalsData,
+        },
+      };
+    })
+  );
+
   const transaction = await prisma.transaction.create({
     data: {
-      id: customTransactionId,
+      id: transactionId,
+      midtransOrderId: orderId,
       totalAmount,
       transactionDetails: {
-        create: await Promise.all(
-          items.map(async (item) => {
-            const itemData = await prisma.itemMaster.findUnique({
-              where: { id: item.ItemMasterID },
-            });
-
-            const harga = itemData.price;
-
-            const additionalCreates = await Promise.all(
-              (item.additionals || []).map(async (add) => {
-                return {
-                  additional: { connect: { id: add.AdditionalID } },
-                };
-              })
-            );
-
-            const tambahanHarga = await item.additionals?.reduce(
-              async (sumPromise, add) => {
-                const sum = await sumPromise;
-                const additional = await prisma.additional.findUnique({
-                  where: { id: add.AdditionalID },
-                });
-                return sum + (additional?.price || 0);
-              },
-              Promise.resolve(0)
-            );
-
-            const totalHarga =
-              harga * item.Qty + (await tambahanHarga) * item.Qty;
-
-            return {
-              itemMasterId: item.ItemMasterID,
-              customerName: CustomerName,
-              qty: item.Qty,
-              totalHarga,
-              transactionAdditionals: {
-                create: additionalCreates,
-              },
-            };
-          })
-        ),
+        create: transactionDetailsData,
       },
     },
     include: {
       transactionDetails: {
         include: {
+          transactionAdditionals: true,
           itemMaster: true,
-          transactionAdditionals: {
-            include: {
-              additional: true,
-            },
-          },
         },
       },
     },
   });
 
-  // Midtrans payload
-  const midtransPayload = {
+  const parameter = {
     transaction_details: {
-      order_id: customTransactionId,
+      order_id: orderId,
       gross_amount: totalAmount,
     },
     customer_details: {
-      first_name: CustomerName,
+      first_name: body.CustomerName,
     },
-    enabled_payments: ["gopay", "bank_transfer", "qris"],
   };
 
-  // Request token dari Midtrans
-  const midtransResponse = await snap.createTransaction(midtransPayload);
+  const snapResponse = await snap.createTransaction(parameter);
 
   return {
-    message: "Transaction created successfully",
-    transactionId: customTransactionId,
-    midtransToken: midtransResponse.token,
-    midtransRedirectUrl: midtransResponse.redirect_url,
+    transaction,
+    snapToken: snapResponse.token,
+    redirectUrl: snapResponse.redirect_url,
   };
 };
