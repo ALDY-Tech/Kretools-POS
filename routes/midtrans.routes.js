@@ -3,6 +3,6 @@ import { handleMidtransNotification } from "../controller/midtrans.controller.js
 
 const router = express.Router();
 
-router.post("/midtrans/notification", handleMidtransNotification);
+router.post("/webhook/midtrans", handleMidtransNotification);
 
 export default router;
