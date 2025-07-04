@@ -20,7 +20,6 @@ const registerController = async (req, res) => {
   }
 };
   
-
 const loginController = async (req, res) => {
   const { username, password } = req.body;
 
@@ -41,9 +40,4 @@ const loginController = async (req, res) => {
 };
   
 
-const logoutController = (req, res) => {
-  // Implementasi logout jika diperlukan
-  res.status(200).json({ msg: "Logout berhasil" });
-};
-
-export { registerController, loginController, logoutController };
+export { registerController, loginController };

@@ -8,12 +8,22 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model user {
+model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique @db.VarChar
   password  String
   role      String   @default("user") @db.VarChar
+  refreshToken RefreshToken[]
   createdAt DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }
 
 model ItemMaster {

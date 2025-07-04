@@ -1,16 +1,13 @@
-import { SignJWT } from "jose";
-import dotenv from "dotenv";
-dotenv.config();
-const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+import jwt from "jsonwebtoken";
 
-const generateToken = async (payload) => {
-  const token = await new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("1h")
-    .sign(secret);
+export function generateAccessToken(payload) {
+  return jwt.sign(payload, process.env.JWT_SECRET_ACCESS, {
+    expiresIn: process.env.ACCESS_TOKEN_EXP,
+  });
+}
 
-  return token;
-};
-
-export { generateToken };
+export function generateRefreshToken(payload) {
+  return jwt.sign(payload, process.env.JWT_SECRET_REFRESH, {
+    expiresIn: process.env.REFRESH_TOKEN_EXP,
+  });
+}
